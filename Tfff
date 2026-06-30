@@ -1,0 +1,186 @@
+gg
+——————————
+
+Задание 2. Диаграмма классов в Visual Studio
+
+Для создания диаграммы классов средствами Visual Studio:
+
+1. Нажмите правой кнопкой мыши по проекту в Обозревателе решений (Solution Explorer).
+
+2. Выберите Добавить -> Новый элемент (Add -> New Item).
+
+3. Найдите шаблон Диаграмма классов (Class Diagram) и добавьте его в проект. Если шаблона нет, доустановите компонент "Конструктор классов" через Visual Studio Installer (вкладка "Отдельные компоненты" -> "Конструктор классов").
+
+4. Перетащите созданные классы (Passenger, Ticket, AirTicket, TrainTicket, BusTicket) из Обозревателя решений на холст диаграммы.
+
+Ниже приведена UML-схема структуры ваших классов (её можно перенести в отчёт):
+
+classDiagram
+    class Passenger {
+        +string Name
+        +string DocumentNumber
+        +Clone() Passenger
+        +ToString() string
+    }
+
+    class Ticket {
+        <<abstract>>
+        +Passenger Passenger
+        +string Departure
+        +string Destination
+        +decimal Price
+        +Clone()* Ticket
+        +ShowInfo()* void
+    }
+
+    class AirTicket {
+        +string FlightNumber
+        +string SeatClass
+        +Clone() Ticket
+        +ShowInfo() void
+    }
+
+    class TrainTicket {
+        +string TrainNumber
+        +int Carriage
+        +int Seat
+        +Clone() Ticket
+        +ShowInfo() void
+    }
+
+    class BusTicket {
+        +string RouteNumber
+        +int Platform
+        +Clone() Ticket
+        +ShowInfo() void
+    }
+
+    Ticket <|-- AirTicket
+    Ticket <|-- TrainTicket
+    Ticket <|-- BusTicket
+    Ticket o-- Passenger
+
+——————————
+
+Задание 3. Создание 2 сниппетов для Visual Studio
+
+Сниппеты (шаблоны кода) позволяют быстро вставлять часто используемые конструкции. Сохраните приведенные ниже XML-структуры в файлы с расширением .snippet и импортируйте их в VS через: Средства (Tools) -> Диспетчер фрагментов кода (Code Snippets Manager) -> Импорт.
+
+Сниппет 1: Быстрое объявление метода Clone() для паттерна Прототип (cloneprop.snippet)
+
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <Title>Prototype Clone Method</Title>
+      <Shortcut>ptclone</Shortcut>
+      <Description>Генерация базовой реализации метода Clone для паттерна Прототип</Description>
+      <Author>Student</Author>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+    </Header>
+    <Snippet>
+      <Declarations>
+        <Literal>
+          <ID>ClassName</ID>
+          <ToolTip>Имя текущего класса</ToolTip>
+          <Default>MyClass</Default>
+        </Literal>
+      </Declarations>
+      <Code Language="csharp">
+        <![CDATA[
+        public override Ticket Clone()
+        {
+            var clonedPassenger = this.Passenger?.Clone();
+            return new $ClassName$(clonedPassenger, this.Departure, this.Destination, this.Price);
+        }
+        ]]>
+      </Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>
+
+Сниппет 2: Шаблон для создания нового типа билета с базовыми свойствами (ticketclass.snippet)<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <Title>New Ticket Subclass</Title>
+      <Shortcut>newticket</Shortcut>
+      <Description>Быстрое создание подкласса Ticket</Description>
+      <Author>Student</Author>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+    </Header>
+    <Snippet>
+      <Declarations>
+        <Literal>
+          <ID>TypeName</ID>
+          <ToolTip>Имя типа билета</ToolTip>
+          <Default>CustomTicket</Default>
+        </Literal>
+      </Declarations>
+      <Code Language="csharp">
+        <![CDATA[
+        public class $TypeName$ : Ticket
+        {
+            public $TypeName$(Passenger passenger, string departure, string destination, decimal price) 
+                : base(passenger, departure, destination, price)
+            {
+            }
+
+            public override Ticket Clone()
+            {
+                return new $TypeName$(this.Passenger?.Clone(), this.Departure, this.Destination, this.Price);
+            }
+
+            public override void ShowInfo()
+            {
+                Console.WriteLine($"[$TypeName$] {Departure} -> {Destination} | {Price} руб.");
+            }
+        }
+        ]]>
+      </Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>
+
+——————————
+
+Задания 4 и 5. Работа с репозиторием Git и ветками
+
+Ниже приведен список команд для терминала Git, которые полностью выполняют задания по фиксации кода и работе с ветвлением:
+
+# Инициализация репозитория (если проект новый)
+git init
+
+# Привязка к удаленному репозиторию (замените URL на свой)
+git remote add origin https://github.com/yourusername/ticket-prototype-system.git
+
+# Добавление всех файлов в индекс и первый коммит в основную ветку (main)
+git add .
+git commit -m "Initial commit: Core implementation of Ticket Prototype pattern"
+git branch -M main
+git push -u origin main
+
+# --- Задание 5: Создание двух веток и определение задач ---
+
+# Ветка 1: feature/validation-logic
+# Задача ветки: Реализация валидации полей билетов (проверка корректности цены, ФИО, номеров паспортов)
+git checkout -b feature/validation-logic
+# (После внесения изменений в код валидации):
+git add .
+git commit -m "Add ticket data validation and business rules"
+git push -u origin feature/validation-logic
+
+# Возврат на main для создания второй ветки
+git checkout main
+
+# Ветка 2: feature/xml-serialization
+# Задача ветки: Реализация сохранения и загрузки клонированных билетов через XML или JSON-файлы
+git checkout -b feature/xml-serialization
+# (После внесения изменений для сериализации):
+git add .
+git commit -m "Implement JSON serialization for cloning state persistence"
+git push -u origin feature/xml-serialization
